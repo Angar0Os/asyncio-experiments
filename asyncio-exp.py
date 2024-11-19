@@ -1,24 +1,22 @@
 import asyncio
-from asyncio import TaskGroup
 
-async def async_sayHello():
-    while True:
-        await asyncio.sleep(3)
-        print("Hello World")
-        await asyncio.sleep(5)
-        print("Goodbye World")
+async def task_coro():
+    value = "Hello From Coroutine !"
 
-async def async_main():
-    task0 = asyncio.create_task(async_sayHello())
 
-    count = 0
-    loop = asyncio.get_event_loop()
+async def print_coro_value(value):
+    print(value)
 
-    while True:
-        print(count)
-        count += 1
-        await asyncio.sleep(1)
+async def main():
+    coro = task_coro()
+    task = asyncio.create_task(coro)
+    await task
+    value = task.result()
 
-asyncio.run(async_main())
+    print_coro_value(value)
+    task2 = asyncio.create_task(print_coro_value(value))
+    await task2
 
-#faire communiquer les fonctions entre elle
+asyncio.run(main())
+
+#TODO : acceder aux info / variables d'une coroutine pendant son execution
