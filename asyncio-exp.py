@@ -1,22 +1,35 @@
 import asyncio
 
-async def task_coro():
-    value = "Hello From Coroutine !"
+
+#coroutine that increment counter and put it into the main queue
+async def task_coro(queue):
+    counter = 0
+    while True:
+        counter += 1
+        await queue.put(counter)
+        await asyncio.sleep(1)
 
 
-async def print_coro_value(value):
-    print(value)
+#reading main queue to print task_coro value
+async def print_value(queue):
+    counter = await queue.get()
+    print(f"value: {counter}")
+    queue.task_done()
+
 
 async def main():
-    coro = task_coro()
-    task = asyncio.create_task(coro)
+    #creating queue
+    queue = asyncio.Queue()
+
+    #launching task that increment counter value
+    task = asyncio.create_task(task_coro(queue))
+
+    #interate as mush as the code need to
+    while True:
+        #uses task that print queue value
+        await print_value(queue)
+
     await task
-    value = task.result()
 
-    print_coro_value(value)
-    task2 = asyncio.create_task(print_coro_value(value))
-    await task2
-
+#running coroutine
 asyncio.run(main())
-
-#TODO : acceder aux info / variables d'une coroutine pendant son execution
